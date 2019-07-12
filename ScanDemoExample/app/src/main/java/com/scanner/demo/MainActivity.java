@@ -12,8 +12,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
 
 import com.scanlibrary.ScanActivity;
 import com.scanlibrary.ScanConstants;
@@ -21,13 +22,18 @@ import com.scanlibrary.ScanConstants;
 import java.io.IOException;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ParentActivity {
 
     private static final int REQUEST_CODE = 99;
     private Button scanButton;
     private Button cameraButton;
     private Button mediaButton;
     private ImageView scannedImageView;
+    private String[] permissions = {
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.CAMERA"};
+    private final int permReqCodeOnStart = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +65,9 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            startScan(preference);
+            if (isPermissionsAllowed(permissions, true, permReqCodeOnStart)) {
+                startScan(preference);
+            }
         }
     }
 
@@ -82,6 +90,21 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case permReqCodeOnStart:
+                if (isAllPermissionsGranted(grantResults)) {
+
+                } else {
+                    Toast.makeText(this, "Pemission not granted", Toast.LENGTH_SHORT).show();
+                }
+
+                break;
         }
     }
 
